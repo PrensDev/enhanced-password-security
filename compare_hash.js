@@ -1,24 +1,27 @@
-var bcrypt = require('bcryptjs');
-const { randomBytes, createHmac } = require('crypto');
+// Import libraries
+const bcrypt = require('bcryptjs');
+const { createHmac } = require('crypto');
 require('dotenv').config()
+const env = process.env
 
-
+/** 
+ * verifyPassword() - function that checks the password and hashed password if matched
+ * it will return true if matched otherwise false
+ */
 function verifyPassword(password, hash) {
-    
-    const real_hash = `$2a$${process.env.SALT_ROUNDS}$${hash}`
 
     // Attach the peppers as head and tail of the password
-    var peppered_password = `${process.env.PEPPER_HEAD}${password}${process.env.PEPPER_TAIL}`;
+    var peppered_password = `${env.PEPPER_HEAD}${password}${env.PEPPER_TAIL}`;
     
     // Convert peppered password with SHA512 algorithm
-    var hmac_password = createHmac('sha512', process.env.HMAC_KEY)
+    var hmac_password = createHmac('sha512', env.HMAC_KEY)
         .update(peppered_password)
         .digest("base64");
     
     // Return true if matched else false
-    return bcrypt.compareSync(hmac_password, real_hash);
+    return bcrypt.compareSync(hmac_password, hash);
 }
 
-verifyPassword("MyPassword", "ZK.0eqyio.tP8MTaP5lcIOL1s5em/aQYnTqPLnhCGQ5tCr/3OF6ie") 
+verifyPassword("MyPassword", "$2a$10$zXf7NlFU5ZCL0ucEV7h46e4zrlkwmaTVHkkMyDdQd1MSwXbrY3Km6") 
     ? console.log("It's a match!") 
     : console.log("Not a match");
